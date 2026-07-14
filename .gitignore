@@ -1,0 +1,6 @@
+.pio/
+include/secrets.h
+*.pem.crt
+*.private.key
+.terraform/
+*.tfstate*
