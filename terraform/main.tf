@@ -28,8 +28,9 @@ resource "aws_iot_thing" "telemetry_node" {
   name = var.thing_name
 }
 
-# Least-privilege policy: the device may only connect as itself and publish
-# to its own telemetry topic.
+# Least-privilege policy: the device may only connect as itself, publish to
+# its own telemetry topic, and control its own LED via a dedicated command
+# topic (subscribe to /led/set, report back on /led/state).
 resource "aws_iot_policy" "telemetry_publish" {
   name = "${var.thing_name}-publish"
   policy = jsonencode({
@@ -43,7 +44,20 @@ resource "aws_iot_policy" "telemetry_publish" {
       {
         Effect   = "Allow"
         Action   = ["iot:Publish"]
-        Resource = "arn:aws:iot:${var.region}:*:topic/devices/${var.thing_name}/telemetry"
+        Resource = [
+          "arn:aws:iot:${var.region}:*:topic/devices/${var.thing_name}/telemetry",
+          "arn:aws:iot:${var.region}:*:topic/devices/${var.thing_name}/led/state"
+        ]
+      },
+      {
+        Effect   = "Allow"
+        Action   = ["iot:Subscribe"]
+        Resource = "arn:aws:iot:${var.region}:*:topicfilter/devices/${var.thing_name}/led/set"
+      },
+      {
+        Effect   = "Allow"
+        Action   = ["iot:Receive"]
+        Resource = "arn:aws:iot:${var.region}:*:topic/devices/${var.thing_name}/led/set"
       }
     ]
   })
