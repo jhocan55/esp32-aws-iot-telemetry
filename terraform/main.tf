@@ -44,10 +44,15 @@ resource "aws_iot_policy" "telemetry_publish" {
       {
         Effect   = "Allow"
         Action   = ["iot:Publish"]
-        Resource = [
-          "arn:aws:iot:${var.region}:*:topic/devices/${var.thing_name}/telemetry",
-          "arn:aws:iot:${var.region}:*:topic/devices/${var.thing_name}/led/state"
-        ]
+        Resource = "arn:aws:iot:${var.region}:*:topic/devices/${var.thing_name}/telemetry"
+      },
+      {
+        # AWS IoT Core disconnects the client on a retained publish unless
+        # iot:RetainPublish is separately granted — a plain iot:Publish
+        # grant on the topic is not sufficient.
+        Effect   = "Allow"
+        Action   = ["iot:Publish", "iot:RetainPublish"]
+        Resource = "arn:aws:iot:${var.region}:*:topic/devices/${var.thing_name}/led/state"
       },
       {
         Effect   = "Allow"
