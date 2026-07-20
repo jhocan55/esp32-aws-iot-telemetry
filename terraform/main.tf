@@ -15,7 +15,7 @@ provider "aws" {
 variable "region" {
   description = "AWS region for IoT Core"
   type        = string
-  default     = "eu-west-1"
+  default     = "eu-west-3"
 }
 
 variable "thing_name" {
